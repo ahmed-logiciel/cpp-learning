@@ -1,48 +1,58 @@
-// Server-side Synchronous Chatting Application
-// using C++ boost::asio
+/**
+ * @file server.cpp
+ * @brief Server side of chatting application using Boost::Asio
+ * @date 2021-07-01
+ * 
+ * 
+ */
 
 #include <boost/asio.hpp>
+#include <cstdlib>
 #include <iostream>
 
-using namespace std;
-using namespace boost::asio;
-using namespace boost::asio::ip;
+
 
 // Driver program for receiving data from buffer
-string getData(tcp::socket& socket)
+std::string getData(boost::asio::ip::tcp::socket& socket)
 {
     boost::asio::streambuf buf;
     read_until(socket, buf, "\n");
-    string data = buffer_cast<const char*>(buf.data());
+    std::string data = boost::asio::buffer_cast<const char*>(buf.data());
     return data;
 }
 
 // Driver program to send data
-void sendData(tcp::socket& socket, const string& message)
+void sendData(boost::asio::ip::tcp::socket& socket, const std::string& message)
 {
     write(socket,
-          buffer(message + "\n"));
+          boost::asio::buffer(message + "\n"));
 }
 
 int main(int argc, char* argv[])
 {
-    io_service io_service;
+    if (argc != 2) {
+        std::cerr << "Usage: ./server <port number>" << "\n";
+        return -1;
+    }
+
+    boost::asio::io_service io_service;
 
     // Listening for any new incomming connection
     // at port 9999 with IPv4 protocol
-    tcp::acceptor acceptor_server(
+    boost::asio::ip::tcp::acceptor acceptor_server(
         io_service,
-        tcp::endpoint(tcp::v4(), 9999));
+        boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), std::atoi(argv[1]) ));
 
     // Creating socket object
-    tcp::socket server_socket(io_service);
+    boost::asio::ip::tcp::socket server_socket(io_service);
 
     // waiting for connection
     acceptor_server.accept(server_socket);
 
+    std::cout << "Starting server on port: " << std::atoi(argv[1]) << "\n";
 
     // Replying with default message to initiate chat
-    string response, reply;
+    std::string response, reply;
 
     while (true) {
 
@@ -54,21 +64,22 @@ int main(int argc, char* argv[])
 
         // Validating if the connection has to be closed
         if (response == "exit") {
-            cout << "End of Chat!" << endl;
+            std::cout << "End of Chat!" << "\n";
             break;
         }
 
-        cout << "From Client: " << response << "\n";
+        std::cout << "From Client: " << response << "\n";
 
-        cout << "To Client: ";
+        std::cout << "To Client: ";
 
-        getline(cin, reply);
+        getline(std::cin, reply);
 
         sendData(server_socket, reply);
 
-        if (reply == "exit")
+        if (reply == "exit") {
+            std::cout << "End of Chat!" << "\n";
             break;
-        
+        }
     }
     return 0;
 }

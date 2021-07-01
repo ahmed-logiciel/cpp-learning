@@ -4,8 +4,8 @@ project(ServerClientApp)
 
 find_package(Boost REQUIRED system thread)
 
-add_executable(ServerClientApp_Server server.cpp)
-target_link_libraries(ServerClientApp_Server ${Boost_LIBRARIES})
+add_executable(server server.cpp)
+target_link_libraries(server ${Boost_LIBRARIES})
 
-add_executable(ServerClientApp_Client client.cpp)
-target_link_libraries(ServerClientApp_Client ${Boost_LIBRARIES})
+add_executable(client client.cpp)
+target_link_libraries(client ${Boost_LIBRARIES})
