@@ -2,9 +2,11 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/asio.hpp>
+#include <boost/chrono.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/thread.hpp>
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -26,7 +28,7 @@ public:
     boost::asio::write(m_sock, request, m_client_error_handler);
 
     if (m_client_error_handler) {
-      std::cout << "Failed to send message to client.\n";
+      std::cout << "Failed to send message to server.\n";
     }
   }
   std::string receiveResponse() {
@@ -42,24 +44,32 @@ public:
     return response;
   }
 
+  std::uint64_t &getm_clientID() { return m_clientID; }
+
+  void setm_clientID(std::uint64_t& clientID) {
+    m_clientID = clientID;
+  }
+
 private:
   boost::asio::io_service m_ios;
   boost::asio::ip::tcp::endpoint m_ep;
   boost::asio::ip::tcp::socket m_sock;
   boost::system::error_code m_client_error_handler;
+  std::uint64_t m_clientID;
 };
 
 int main() {
   const std::string raw_ip_address = "127.0.0.1";
   const unsigned short port_num = 3333;
   try {
+    
     SyncTCPClient client(raw_ip_address, port_num); // Sync connect.
 
     client.connect();
 
     std::cout << "Connection established.\n";
 
-    std::cout << "What is your name?";
+    std::cout << "What is your name? ";
     std::string name;
     std::getline(std::cin, name);
 
@@ -72,6 +82,7 @@ int main() {
       struct Message message;
       message.clientName = name;
       message.clientMessage = request;
+      // message.clientID = client.getm_clientID();
 
       boost::asio::streambuf buf;
       {
@@ -80,7 +91,7 @@ int main() {
         out_archive << message;
         out_archive << '\n';
       }
-      
+
       client.sendRequest(buf);
       std::string response = client.receiveResponse();
       std::cout << "Response received: " << response << std::endl;
