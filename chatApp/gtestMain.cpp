@@ -10,7 +10,7 @@ TEST(chatApp, clientServerWorking) {
 
   server.Start(port_num);
   client.connect();
-
+  server.Stop();
   client.close();
 }
 
