@@ -1,6 +1,7 @@
 #include "clientSync.hpp"
 #include <iostream>
 #include <string>
+#include "serverClientList.hpp"
 
 int main() {
   const std::string raw_ip_address = "127.0.0.1";
@@ -13,7 +14,10 @@ int main() {
 
     boost::asio::streambuf responseClientID;
 
-    boost::asio::read_until(client.getm_sock(), responseClientID, '\n');
+    boost::asio::read_until(client.getm_sock(), responseClientID, '\n', client.getm_client_error_handler());
+
+    // if (client)
+    // add error handling in read untill, then send name.
 
     std::string clientID = boost::asio::buffer_cast<const char *>(responseClientID.data());
 
@@ -40,7 +44,6 @@ int main() {
       message.clientName = name;
       message.clientMessage = request;
       message.clientID = client.getm_clientID();
-      // message.clientID = client.getm_clientID();
 
       boost::asio::streambuf buf;
       {

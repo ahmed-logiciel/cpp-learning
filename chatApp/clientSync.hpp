@@ -57,6 +57,10 @@ public:
 
   boost::asio::ip::tcp::socket& getm_sock() {
     return m_sock;
+  }
+
+  boost::system::error_code& getm_client_error_handler() {
+    return m_client_error_handler;
   }  
 
 private:

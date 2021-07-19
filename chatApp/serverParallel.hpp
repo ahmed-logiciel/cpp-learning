@@ -20,6 +20,7 @@
 #include <set>
 #include <string>
 #include <thread>
+#include <tuple>
 
 class Service {
 public:
@@ -36,6 +37,7 @@ public:
 private:
   boost::system::error_code serviceErrorHandler;
   std::string servedClientID;
+  std::string servedClientName;
 
   void HandleClient(std::shared_ptr<boost::asio::ip::tcp::socket> sock,
                     std::string clientID, ServerClientList &activeClients) {
@@ -52,8 +54,19 @@ private:
 
       clientID.pop_back();
 
-      activeClients.insert(clientID, sock.get());
+      std::string clientName;
+      boost::asio::read_until(*sock.get(), boost::asio::buffer(clientName), '\n', serviceErrorHandler);
+
+      if (serviceErrorHandler) {
+        std::cerr << "Failed to read client name. Aborting connection.\n";
+        delete this;
+      }
+
+      clientName.pop_back();
+
+      activeClients.insert(clientID, clientName, sock.get());
       servedClientID = clientID;
+      servedClientName = clientName;
 
       while (true) {
         boost::asio::streambuf request;
