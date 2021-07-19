@@ -1,5 +1,7 @@
 # Chat Application Requirements
 
+## Phase 01
+
 - [x] server connects with mutliple clients
     - [ ] server connects asynchronously
     - [x] server connects using multiple threads
@@ -24,4 +26,10 @@
 
 - [ ] client can make friends with other clients
 
+## Phase 02
+
 - [ ] client can share files with friends, peer-to-peer
+
+## Phase 03
+
+- [ ] client can send message to off-line clients
